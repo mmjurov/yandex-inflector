@@ -39,6 +39,11 @@ class YandexInflector
 
 	private function get()
 	{
+		if ($cacheVars = $this->getFromCache($this->baseWord))
+		{
+			return $cacheVars;
+		}
+
 		$url = self::BASE_URI 
 			. $this->getInflectionPath()
 			. '?' 
@@ -73,6 +78,8 @@ class YandexInflector
 		{
 			$this->inflections[] = (string)$obInflection;
 		}
+
+		$this->storeCache($this->baseWord, $this->inflections);
 	}
 
 	public function getOriginal()
@@ -164,6 +171,19 @@ class YandexInflector
 		return (!empty($this->inflections) && strlen($this->inflections[ $inflectionNum ]) > 0) ? 
 			$this->inflections[ $inflectionNum ] :
 			$this->baseWord;
+	}
+
+	protected function storeCache($key, $value)
+	{
+		if (!isset($_SESSION[__CLASS__][ $key ]))
+		{
+			$_SESSION[__CLASS__][ $key ] = $value;
+		}
+	}
+
+	protected function getFromCache($key)
+	{
+		return isset($_SESSION[__CLASS__][ $key ]) ? $_SESSION[__CLASS__][ $key ] : null;
 	}
 
 }
