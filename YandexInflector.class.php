@@ -31,7 +31,7 @@ abstract class YandexInflectorCache
 	 * Метод установки значения в кеш по ключу
 	 * @param string $key
 	 * @param $value
-	 * @return mixed
+	 * @return boolean
 	 */
 	abstract function set($key, $value);
 }
@@ -64,6 +64,7 @@ class YandexInflectorSessionCache extends YandexInflectorCache
 	function set($key, $value)
 	{
 		$_SESSION[ $this->sessionKey ][ $key ] = $value;
+		return true;
 	}
 }
 
