@@ -1,7 +1,76 @@
 <?php
 
-class YandexInflectorException {}
+class YandexInflectorException extends Exception {}
 
+/**
+ * Абстрактный класс, который описывает все необходимые для реализации методы
+ * Class YandexInflectorCache
+ */
+abstract class YandexInflectorCache 
+{
+	/**
+	 * Конструктор. Передаются на вход параметры, необходимые для работы класса кеша
+	 * @param $options
+	 */
+	abstract function __construct($options);
+
+	/**
+	 * Метод подключения. Если требуется подключение к базе с кешем, то нужно реализовать его в этом методе
+	 * @return boolean
+	 */
+	abstract function connect();
+
+	/**
+	 * Метод получения данных из кеша по ключу
+	 * @param string $key
+	 * @return mixed
+	 */
+	abstract function get($key);
+
+	/**
+	 * Метод установки значения в кеш по ключу
+	 * @param string $key
+	 * @param $value
+	 * @return mixed
+	 */
+	abstract function set($key, $value);
+}
+
+/**
+ * Примерный класс кешера. Данные запросов кешируются в сессию
+ * Class YandexInflectorSessionCache
+ */
+class YandexInflectorSessionCache extends YandexInflectorCache 
+{
+	private $sessionKey = 'YANDEX_INFLECTOR';
+	function __construct($options)
+	{
+		if (strlen($options['key']) > 0)
+		{
+			$this->sessionKey = $options['key'];
+		}
+	}
+
+	function connect()
+	{
+		return true;
+	}
+
+	function get($key)
+	{
+		return isset($_SESSION[ $this->sessionKey ][ $key ]) ? $_SESSION[ $this->sessionKey ][ $key ] : false;
+	}
+
+	function set($key, $value)
+	{
+		$_SESSION[ $this->sessionKey ][ $key ] = $value;
+	}
+}
+
+/**
+ * Class YandexInflector
+ * Класс для склонения слов с помощью сервиса Яндекса
+ */
 class YandexInflector 
 {
 	const BASE_URI = 'http://export.yandex.ru/';
@@ -9,21 +78,17 @@ class YandexInflector
 
 	private $baseWord = '';
 	private $inflections = array();
+	private $obCache;
+	private $useCache = false;
 
-	function __construct( $word )
+	function __construct( $cacheObject = 'YandexInflectorSessionCache', $cacheOptions = array() )
 	{
-		$isPrepared = $this->prepareWord($word);
 
-		if ( $isPrepared )
+		if (class_exists($cacheObject) && get_parent_class($cacheObject) === 'YandexInflectorCache')
 		{
-			$this->baseWord = $word;
-			$this->get();
+			$this->obCache = new $cacheObject( $cacheOptions );
+			$this->useCache = true;
 		}
-		else
-		{
-			throw new YandexInflectorException('WORD_NOT_VALID');
-		}
-			
 	}
 
 	protected function prepareWord( &$word )
@@ -39,22 +104,32 @@ class YandexInflector
 
 	private function get()
 	{
-		if ($cacheVars = $this->getFromCache($this->baseWord))
+		$cacheVars = false;
+		if ($this->useCache && $this->obCache->connect())
 		{
-			return $cacheVars;
+			$cacheVars = $this->obCache->get( $this->baseWord );
+			$this->inflections = $cacheVars;
 		}
 
-		$url = self::BASE_URI 
+		if ($cacheVars === false || !$this->useCache)
+		{
+			$url = self::BASE_URI 
 			. $this->getInflectionPath()
 			. '?' 
 			. http_build_query( array('name' => $this->baseWord) );
 
-		$context = stream_context_create(array(
-			'http' => array('timeout' => self::TIMEOUT)
-		));
-		$xmlResponse = file_get_contents( $url, false, $context );
+			$context = stream_context_create(array(
+				'http' => array('timeout' => self::TIMEOUT)
+			));
+			$xmlResponse = file_get_contents( $url, false, $context );
 
-		$this->parseResponse($xmlResponse);
+			if ($this->parseResponse($xmlResponse) && $this->useCache)
+			{
+				$this->obCache->set( $this->baseWord, $this->inflections );
+			}
+
+		}
+	
 	}
 
 	private function parseResponse($xml)
@@ -66,7 +141,6 @@ class YandexInflector
 		catch( Exception $e )
 		{
 			throw new YandexInflectorException('INVALID_RESPONSE_FROM_SERVICE');
-			return false;
 		}
 		
 		if (!property_exists($obXml, 'inflection'))
@@ -74,12 +148,29 @@ class YandexInflector
 			throw new YandexInflectorException('UNEXPECTED_RESPONSE_FROM_SERVICE');
 		}
 
-		foreach ($obXml->inflection as $obInflection ) 
+		foreach ($obXml->inflection as $obInflection )
 		{
 			$this->inflections[] = (string)$obInflection;
 		}
 
-		$this->storeCache($this->baseWord, $this->inflections);
+		return true;
+
+	}
+
+	public function inflect($word)
+	{
+		$isPrepared = $this->prepareWord($word);
+
+		if ( $isPrepared )
+		{
+			$this->baseWord = $word;
+			$this->get();
+			return $this->getInflections();
+		}
+		else
+		{
+			throw new YandexInflectorException('WORD_NOT_VALID');
+		}
 	}
 
 	public function getOriginal()
@@ -172,18 +263,4 @@ class YandexInflector
 			$this->inflections[ $inflectionNum ] :
 			$this->baseWord;
 	}
-
-	protected function storeCache($key, $value)
-	{
-		if (!isset($_SESSION[__CLASS__][ $key ]))
-		{
-			$_SESSION[__CLASS__][ $key ] = $value;
-		}
-	}
-
-	protected function getFromCache($key)
-	{
-		return isset($_SESSION[__CLASS__][ $key ]) ? $_SESSION[__CLASS__][ $key ] : null;
-	}
-
 }
