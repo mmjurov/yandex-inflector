@@ -1,78 +1,13 @@
 <?php
-
-class YandexInflectorException extends Exception {}
-
-/**
- * Абстрактный класс, который описывает все необходимые для реализации методы
- * Class YandexInflectorCache
- */
-abstract class YandexInflectorCache 
-{
-	/**
-	 * Конструктор. Передаются на вход параметры, необходимые для работы класса кеша
-	 * @param $options
-	 */
-	abstract function __construct($options);
-
-	/**
-	 * Метод подключения. Если требуется подключение к базе с кешем, то нужно реализовать его в этом методе
-	 * @return boolean
-	 */
-	abstract function connect();
-
-	/**
-	 * Метод получения данных из кеша по ключу
-	 * @param string $key
-	 * @return mixed
-	 */
-	abstract function get($key);
-
-	/**
-	 * Метод установки значения в кеш по ключу
-	 * @param string $key
-	 * @param $value
-	 * @return boolean
-	 */
-	abstract function set($key, $value);
-}
-
-/**
- * Примерный класс кешера. Данные запросов кешируются в сессию
- * Class YandexInflectorSessionCache
- */
-class YandexInflectorSessionCache extends YandexInflectorCache 
-{
-	private $sessionKey = 'YANDEX_INFLECTOR';
-	function __construct($options)
-	{
-		if (strlen($options['key']) > 0)
-		{
-			$this->sessionKey = $options['key'];
-		}
-	}
-
-	function connect()
-	{
-		return true;
-	}
-
-	function get($key)
-	{
-		return isset($_SESSION[ $this->sessionKey ][ $key ]) ? $_SESSION[ $this->sessionKey ][ $key ] : false;
-	}
-
-	function set($key, $value)
-	{
-		$_SESSION[ $this->sessionKey ][ $key ] = $value;
-		return true;
-	}
-}
+namespace mmjurov;
+use mmjurov\YandexInflectorException;
+use mmjurov\YandexInflectorBitrixCache;
 
 /**
  * Class YandexInflector
  * Класс для склонения слов с помощью сервиса Яндекса
  */
-class YandexInflector 
+class YandexInflector
 {
 	const BASE_URI = 'http://export.yandex.ru/';
 	const TIMEOUT = 3;
@@ -82,10 +17,9 @@ class YandexInflector
 	private $obCache;
 	private $useCache = false;
 
-	function __construct( $cacheObject = 'YandexInflectorSessionCache', $cacheOptions = array() )
+	function __construct( $cacheObject = 'mmjurov\\YandexInflectorBitrixCache', $cacheOptions = array() )
 	{
-
-		if (class_exists($cacheObject) && get_parent_class($cacheObject) === 'YandexInflectorCache')
+		if (class_exists($cacheObject) && get_parent_class($cacheObject) === 'mmjurov\\YandexInflectorCache')
 		{
 			$this->obCache = new $cacheObject( $cacheOptions );
 			$this->useCache = true;
@@ -111,13 +45,17 @@ class YandexInflector
 			$cacheVars = $this->obCache->get( $this->baseWord );
 			$this->inflections = $cacheVars;
 		}
+		else
+		{
+			$this->useCache = false;
+		}
 
 		if ($cacheVars === false || !$this->useCache)
 		{
-			$url = self::BASE_URI 
-			. $this->getInflectionPath()
-			. '?' 
-			. http_build_query( array('name' => $this->baseWord) );
+			$url = self::BASE_URI
+				. $this->getInflectionPath()
+				. '?'
+				. http_build_query( array('name' => $this->baseWord) );
 
 			$context = stream_context_create(array(
 				'http' => array('timeout' => self::TIMEOUT)
@@ -130,20 +68,20 @@ class YandexInflector
 			}
 
 		}
-	
+
 	}
 
 	private function parseResponse($xml)
 	{
 		try
 		{
-			$obXml = new SimpleXmlElement( $xml );
+			$obXml = new \SimpleXmlElement( $xml );
 		}
-		catch( Exception $e )
+		catch( \Exception $e )
 		{
 			throw new YandexInflectorException('INVALID_RESPONSE_FROM_SERVICE');
 		}
-		
+
 		if (!property_exists($obXml, 'inflection'))
 		{
 			throw new YandexInflectorException('UNEXPECTED_RESPONSE_FROM_SERVICE');
@@ -217,14 +155,14 @@ class YandexInflector
 	public function getInflection( $code )
 	{
 		$code = strtolower($code);
-		switch ($code) 
+		switch ($code)
 		{
 			case 'nominative':
 			case 'именительный':
 			case 0:
 				$inflectionNum = 0;
 				break;
-			
+
 			case 'genitive':
 			case 'родительный':
 			case 1:
@@ -260,7 +198,7 @@ class YandexInflector
 				break;
 		}
 
-		return (!empty($this->inflections) && strlen($this->inflections[ $inflectionNum ]) > 0) ? 
+		return (!empty($this->inflections) && strlen($this->inflections[ $inflectionNum ]) > 0) ?
 			$this->inflections[ $inflectionNum ] :
 			$this->baseWord;
 	}
