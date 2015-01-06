@@ -1,7 +1,6 @@
 <?php
 namespace mmjurov;
-use mmjurov\YandexInflectorException;
-use mmjurov\YandexInflectorBitrixCache;
+use mmjurov\YandexInflectorBitrixCache as YandexInflectorBitrixCache;
 
 /**
  * Class YandexInflector
@@ -23,6 +22,10 @@ class YandexInflector
 		{
 			$this->obCache = new $cacheObject( $cacheOptions );
 			$this->useCache = true;
+		}
+		else
+		{
+			$this->useCache = false;
 		}
 	}
 
@@ -203,3 +206,8 @@ class YandexInflector
 			$this->baseWord;
 	}
 }
+
+/**
+ * Исключение для класса склонятора
+ */
+class YandexInflectorException extends \Exception {};

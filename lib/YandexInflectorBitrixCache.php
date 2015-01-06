@@ -1,6 +1,5 @@
 <?php
 namespace mmjurov;
-use mmjurov\YandexInflectorCache;
 
 class YandexInflectorBitrixCache extends YandexInflectorCache
 {
@@ -18,12 +17,8 @@ class YandexInflectorBitrixCache extends YandexInflectorCache
 
 	function connect()
 	{
-		if (class_exists('CPHPCache'))
-		{
-			$this->obCache = new CPHPCache;
-			return is_object($this->obCache);
-		}
-		return false;
+		$this->obCache = new \CPHPCache;
+		return is_object($this->obCache);
 	}
 
 	function get($key)

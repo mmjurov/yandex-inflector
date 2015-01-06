@@ -1,36 +1,35 @@
 <?php
-namespace mmjurov;
 
 /**
- * Àáñòðàêòíûé êëàññ, êîòîðûé îïèñûâàåò âñå íåîáõîäèìûå äëÿ ðåàëèçàöèè ìåòîäû
+ * ÐÐ±ÑÑ‚Ñ€Ð°ÐºÑ‚Ð½Ñ‹Ð¹ ÐºÐ»Ð°ÑÑ, ÐºÐ¾Ñ‚Ð¾Ñ€Ñ‹Ð¹ Ð¾Ð¿Ð¸ÑÑ‹Ð²Ð°ÐµÑ‚ Ð²ÑÐµ Ð½ÐµÐ¾Ð±Ñ…Ð¾Ð´Ð¸Ð¼Ñ‹Ðµ Ð´Ð»Ñ Ñ€ÐµÐ°Ð»Ð¸Ð·Ð°Ñ†Ð¸Ð¸ Ð¼ÐµÑ‚Ð¾Ð´Ñ‹
  * Class YandexInflectorCache
  */
 abstract class YandexInflectorCache
 {
-	/**
-	 * Êîíñòðóêòîð. Ïåðåäàþòñÿ íà âõîä ïàðàìåòðû, íåîáõîäèìûå äëÿ ðàáîòû êëàññà êåøà
-	 * @param $options
-	 */
-	abstract function __construct($options);
+    /**
+     * ÐšÐ¾Ð½ÑÑ‚Ñ€ÑƒÐºÑ‚Ð¾Ñ€. ÐŸÐµÑ€ÐµÐ´Ð°ÑŽÑ‚ÑÑ Ð½Ð° Ð²Ñ…Ð¾Ð´ Ð¿Ð°Ñ€Ð°Ð¼ÐµÑ‚Ñ€Ñ‹, Ð½ÐµÐ¾Ð±Ñ…Ð¾Ð´Ð¸Ð¼Ñ‹Ðµ Ð´Ð»Ñ Ñ€Ð°Ð±Ð¾Ñ‚Ñ‹ ÐºÐ»Ð°ÑÑÐ° ÐºÐµÑˆÐ°
+     * @param $options
+     */
+    abstract function __construct($options);
 
-	/**
-	 * Ìåòîä ïîäêëþ÷åíèÿ. Åñëè òðåáóåòñÿ ïîäêëþ÷åíèå ê áàçå ñ êåøåì, òî íóæíî ðåàëèçîâàòü åãî â ýòîì ìåòîäå
-	 * @return boolean
-	 */
-	abstract function connect();
+    /**
+     * ÐœÐµÑ‚Ð¾Ð´ Ð¿Ð¾Ð´ÐºÐ»ÑŽÑ‡ÐµÐ½Ð¸Ñ. Ð•ÑÐ»Ð¸ Ñ‚Ñ€ÐµÐ±ÑƒÐµÑ‚ÑÑ Ð¿Ð¾Ð´ÐºÐ»ÑŽÑ‡ÐµÐ½Ð¸Ðµ Ðº Ð±Ð°Ð·Ðµ Ñ ÐºÐµÑˆÐµÐ¼, Ñ‚Ð¾ Ð½ÑƒÐ¶Ð½Ð¾ Ñ€ÐµÐ°Ð»Ð¸Ð·Ð¾Ð²Ð°Ñ‚ÑŒ ÐµÐ³Ð¾ Ð² ÑÑ‚Ð¾Ð¼ Ð¼ÐµÑ‚Ð¾Ð´Ðµ
+     * @return boolean
+     */
+    abstract function connect();
 
-	/**
-	 * Ìåòîä ïîëó÷åíèÿ äàííûõ èç êåøà ïî êëþ÷ó
-	 * @param string $key
-	 * @return mixed
-	 */
-	abstract function get($key);
+    /**
+     * ÐœÐµÑ‚Ð¾Ð´ Ð¿Ð¾Ð»ÑƒÑ‡ÐµÐ½Ð¸Ñ Ð´Ð°Ð½Ð½Ñ‹Ñ… Ð¸Ð· ÐºÐµÑˆÐ° Ð¿Ð¾ ÐºÐ»ÑŽÑ‡Ñƒ
+     * @param string $key
+     * @return mixed
+     */
+    abstract function get($key);
 
-	/**
-	 * Ìåòîä óñòàíîâêè çíà÷åíèÿ â êåø ïî êëþ÷ó
-	 * @param string $key
-	 * @param $value
-	 * @return boolean
-	 */
-	abstract function set($key, $value);
+    /**
+     * ÐœÐµÑ‚Ð¾Ð´ ÑƒÑÑ‚Ð°Ð½Ð¾Ð²ÐºÐ¸ Ð·Ð½Ð°Ñ‡ÐµÐ½Ð¸Ñ Ð² ÐºÐµÑˆ Ð¿Ð¾ ÐºÐ»ÑŽÑ‡Ñƒ
+     * @param string $key
+     * @param $value
+     * @return boolean
+     */
+    abstract function set($key, $value);
 }

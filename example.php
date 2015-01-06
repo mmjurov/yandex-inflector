@@ -1,11 +1,10 @@
 <?php
 //use autoloader instead of this
-include 'lib/YandexInflectorException.php';
 include 'lib/YandexInflectorCache.php';
 include 'lib/YandexInflectorBitrixCache.php';
 include 'lib/YandexInflector.php';
 
-use mmjurov\YandexInflector;
+use mmjurov\YandexInflector as YandexInflector;
 
 $obInflect = new YandexInflector();
 
