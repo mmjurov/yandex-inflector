@@ -5,7 +5,7 @@ use Yandex\Inflector\Cache\Provider;
 /**
  * Class Bitrix
  * @package mmjurov\Yandex\Inflector\Cache
- * Класс, который является реализацией кеширования под битрикс для склонятора
+ * РљР»Р°СЃСЃ, РєРѕС‚РѕСЂС‹Р№ СЏРІР»СЏРµС‚СЃСЏ СЂРµР°Р»РёР·Р°С†РёРµР№ РєРµС€РёСЂРѕРІР°РЅРёСЏ РїРѕРґ Р±РёС‚СЂРёРєСЃ РґР»СЏ СЃРєР»РѕРЅСЏС‚РѕСЂР°
  */
 class Bitrix extends \Yandex\Inflector\Cache\Provider
 {
