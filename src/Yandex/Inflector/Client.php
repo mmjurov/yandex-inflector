@@ -1,12 +1,13 @@
 <?php
-namespace mmjurov;
-use mmjurov\YandexInflectorBitrixCache as YandexInflectorBitrixCache;
+
+namespace Yandex\Inflector;
 
 /**
- * Class YandexInflector
- * РљР»Р°СЃСЃ РґР»СЏ СЃРєР»РѕРЅРµРЅРёСЏ СЃР»РѕРІ СЃ РїРѕРјРѕС‰СЊСЋ СЃРµСЂРІРёСЃР° РЇРЅРґРµРєСЃР°
+ * Class Client
+ * @package mmjurov\Yandex\Inflector
+ * Класс для склонения слов с помощью сервиса Яндекса
  */
-class YandexInflector
+class Client
 {
 	const BASE_URI = 'http://export.yandex.ru/';
 	const TIMEOUT = 3;
@@ -16,20 +17,22 @@ class YandexInflector
 	private $obCache;
 	private $useCache = false;
 
-	function __construct( $cacheObject = 'mmjurov\\YandexInflectorBitrixCache', $cacheOptions = array() )
+	function __construct($cacheObject = 'mmjurov\\Yandex\\Inflector\\Cache\\Bitrix', $cacheOptions = array())
 	{
-		if (class_exists($cacheObject) && get_parent_class($cacheObject) === 'mmjurov\\YandexInflectorCache')
+		if (
+			class_exists($cacheObject)
+			&& get_parent_class($cacheObject) === 'mmjurov\\Yandex\\Inflector\\Cache\\Provider'
+		)
 		{
-			$this->obCache = new $cacheObject( $cacheOptions );
+			$this->obCache = new $cacheObject($cacheOptions);
 			$this->useCache = true;
-		}
-		else
+		} else
 		{
 			$this->useCache = false;
 		}
 	}
 
-	protected function prepareWord( &$word )
+	protected function prepareWord(&$word)
 	{
 		trim($word);
 		return strlen($word);
@@ -45,10 +48,9 @@ class YandexInflector
 		$cacheVars = false;
 		if ($this->useCache && $this->obCache->connect())
 		{
-			$cacheVars = $this->obCache->get( $this->baseWord );
+			$cacheVars = $this->obCache->get($this->baseWord);
 			$this->inflections = $cacheVars;
-		}
-		else
+		} else
 		{
 			$this->useCache = false;
 		}
@@ -58,16 +60,16 @@ class YandexInflector
 			$url = self::BASE_URI
 				. $this->getInflectionPath()
 				. '?'
-				. http_build_query( array('name' => $this->baseWord) );
+				. http_build_query(array('name' => $this->baseWord));
 
 			$context = stream_context_create(array(
 				'http' => array('timeout' => self::TIMEOUT)
 			));
-			$xmlResponse = file_get_contents( $url, false, $context );
+			$xmlResponse = file_get_contents($url, false, $context);
 
 			if ($this->parseResponse($xmlResponse) && $this->useCache)
 			{
-				$this->obCache->set( $this->baseWord, $this->inflections );
+				$this->obCache->set($this->baseWord, $this->inflections);
 			}
 
 		}
@@ -78,9 +80,8 @@ class YandexInflector
 	{
 		try
 		{
-			$obXml = new \SimpleXmlElement( $xml );
-		}
-		catch( \Exception $e )
+			$obXml = new \SimpleXmlElement($xml);
+		} catch (\Exception $e)
 		{
 			throw new YandexInflectorException('INVALID_RESPONSE_FROM_SERVICE');
 		}
@@ -90,7 +91,7 @@ class YandexInflector
 			throw new YandexInflectorException('UNEXPECTED_RESPONSE_FROM_SERVICE');
 		}
 
-		foreach ($obXml->inflection as $obInflection )
+		foreach ($obXml->inflection as $obInflection)
 		{
 			$this->inflections[] = (string)$obInflection;
 		}
@@ -103,13 +104,12 @@ class YandexInflector
 	{
 		$isPrepared = $this->prepareWord($word);
 
-		if ( $isPrepared )
+		if ($isPrepared)
 		{
 			$this->baseWord = $word;
 			$this->get();
 			return $this->getInflections();
-		}
-		else
+		} else
 		{
 			throw new YandexInflectorException('WORD_NOT_VALID');
 		}
@@ -155,43 +155,43 @@ class YandexInflector
 		return $this->inflections;
 	}
 
-	public function getInflection( $code )
+	public function getInflection($code)
 	{
 		$code = strtolower($code);
 		switch ($code)
 		{
 			case 'nominative':
-			case 'РёРјРµРЅРёС‚РµР»СЊРЅС‹Р№':
+			case 'именительный':
 			case 0:
 				$inflectionNum = 0;
 				break;
 
 			case 'genitive':
-			case 'СЂРѕРґРёС‚РµР»СЊРЅС‹Р№':
+			case 'родительный':
 			case 1:
 				$inflectionNum = 1;
 				break;
 
 			case 'dative':
-			case 'РґР°С‚РµР»СЊРЅС‹Р№':
+			case 'дательный':
 			case 2:
 				$inflectionNum = 2;
 				break;
 
 			case 'accusative':
-			case 'РІРёРЅРёС‚РµР»СЊРЅС‹Р№':
+			case 'винительный':
 			case 3:
 				$inflectionNum = 3;
 				break;
 
 			case 'instrumental':
-			case 'С‚РІРѕСЂРёС‚РµР»СЊРЅС‹Р№':
+			case 'творительный':
 			case 4:
 				$inflectionNum = 4;
 				break;
 
 			case 'prepositional':
-			case 'РїСЂРµРґР»РѕР¶РЅС‹Р№':
+			case 'предложный':
 			case 5:
 				$inflectionNum = 5;
 				break;
@@ -201,13 +201,14 @@ class YandexInflector
 				break;
 		}
 
-		return (!empty($this->inflections) && strlen($this->inflections[ $inflectionNum ]) > 0) ?
-			$this->inflections[ $inflectionNum ] :
+		return (!empty($this->inflections) && strlen($this->inflections[$inflectionNum]) > 0) ?
+			$this->inflections[$inflectionNum] :
 			$this->baseWord;
 	}
 }
 
+
 /**
- * РСЃРєР»СЋС‡РµРЅРёРµ РґР»СЏ РєР»Р°СЃСЃР° СЃРєР»РѕРЅСЏС‚РѕСЂР°
+ * Исключение для класса склонятора
  */
 class YandexInflectorException extends \Exception {};

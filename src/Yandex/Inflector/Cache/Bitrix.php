@@ -1,7 +1,13 @@
 <?php
-namespace mmjurov;
+namespace Yandex\Inflector\Cache;
+use Yandex\Inflector\Cache\Provider;
 
-class YandexInflectorBitrixCache extends YandexInflectorCache
+/**
+ * Class Bitrix
+ * @package mmjurov\Yandex\Inflector\Cache
+ * Класс, который является реализацией кеширования под битрикс для склонятора
+ */
+class Bitrix extends \Yandex\Inflector\Cache\Provider
 {
 	private $cacheTime = 3600000;
 	private $obCache;
@@ -17,7 +23,10 @@ class YandexInflectorBitrixCache extends YandexInflectorCache
 
 	function connect()
 	{
-		$this->obCache = new \CPHPCache;
+		if (class_exists('\\CPHPCache'))
+		{
+			$this->obCache = new \CPHPCache;
+		}
 		return is_object($this->obCache);
 	}
 

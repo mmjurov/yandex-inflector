@@ -1,10 +1,12 @@
 <?php
+namespace Yandex\Inflector\Cache;
 
 /**
+ * Class Provider
+ * @package mmjurov\Yandex\Inflector\Cache
  * Абстрактный класс, который описывает все необходимые для реализации методы
- * Class YandexInflectorCache
  */
-abstract class YandexInflectorCache
+abstract class Provider
 {
     /**
      * Конструктор. Передаются на вход параметры, необходимые для работы класса кеша
