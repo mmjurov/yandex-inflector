@@ -1,8 +1,14 @@
 {
-    "name": "mmjurov/yandex-inflector",
+    "name": "bubnovKelnik/yandex-inflector",
     "description": "A small library that provides object oriented interface to inflect words with yandex service",
     "keywords": ["yandex", "inflector", "php"],
     "type": "library",
+    "authors": [
+        {
+            "name": "Mikhail Zhurov",
+            "homepage": "http://zhurov.me"
+        }
+    ],
     "require": {
         "php": ">=5.3.0"
     },
