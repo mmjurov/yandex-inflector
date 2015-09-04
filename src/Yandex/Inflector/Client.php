@@ -5,7 +5,7 @@ namespace Yandex\Inflector;
 /**
  * Class Client
  * @package mmjurov\Yandex\Inflector
- * Класс для склонения слов с помощью сервиса Яндекса
+ * РљР»Р°СЃСЃ РґР»СЏ СЃРєР»РѕРЅРµРЅРёСЏ СЃР»РѕРІ СЃ РїРѕРјРѕС‰СЊСЋ СЃРµСЂРІРёСЃР° РЇРЅРґРµРєСЃР°
  */
 class Client
 {
@@ -60,7 +60,7 @@ class Client
 			$url = self::BASE_URI
 				. $this->getInflectionPath()
 				. '?'
-				. http_build_query(array('name' => $this->baseWord));
+				. 'name=' . urlencode($this->baseWord);
 
 			$context = stream_context_create(array(
 				'http' => array('timeout' => self::TIMEOUT)
@@ -161,37 +161,37 @@ class Client
 		switch ($code)
 		{
 			case 'nominative':
-			case 'именительный':
+			case 'РёРјРµРЅРёС‚РµР»СЊРЅС‹Р№':
 			case 0:
 				$inflectionNum = 0;
 				break;
 
 			case 'genitive':
-			case 'родительный':
+			case 'СЂРѕРґРёС‚РµР»СЊРЅС‹Р№':
 			case 1:
 				$inflectionNum = 1;
 				break;
 
 			case 'dative':
-			case 'дательный':
+			case 'РґР°С‚РµР»СЊРЅС‹Р№':
 			case 2:
 				$inflectionNum = 2;
 				break;
 
 			case 'accusative':
-			case 'винительный':
+			case 'РІРёРЅРёС‚РµР»СЊРЅС‹Р№':
 			case 3:
 				$inflectionNum = 3;
 				break;
 
 			case 'instrumental':
-			case 'творительный':
+			case 'С‚РІРѕСЂРёС‚РµР»СЊРЅС‹Р№':
 			case 4:
 				$inflectionNum = 4;
 				break;
 
 			case 'prepositional':
-			case 'предложный':
+			case 'РїСЂРµРґР»РѕР¶РЅС‹Р№':
 			case 5:
 				$inflectionNum = 5;
 				break;
@@ -209,6 +209,6 @@ class Client
 
 
 /**
- * Исключение для класса склонятора
+ * РСЃРєР»СЋС‡РµРЅРёРµ РґР»СЏ РєР»Р°СЃСЃР° СЃРєР»РѕРЅСЏС‚РѕСЂР°
  */
 class YandexInflectorException extends \Exception {};
