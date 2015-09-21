@@ -3,6 +3,18 @@
     "description": "A small library that provides object oriented interface to inflect words with yandex service",
     "keywords": ["yandex", "inflector", "php"],
     "type": "library",
+    "version": "1.0.1",
+    "authors": [
+        {
+            "name": "Mikhail Zhurov",
+            "homepage": "http://zhurov.me"
+        }
+    ],
+    "extra": {
+        "branch-alias": {
+            "dev-master": "1.0.1"
+        }
+    },
     "require": {
         "php": ">=5.3.0"
     },
