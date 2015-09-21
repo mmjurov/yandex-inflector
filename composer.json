@@ -1,5 +1,5 @@
 {
-    "name": "bubnovKelnik/yandex-inflector",
+    "name": "mmjurov/yandex-inflector",
     "description": "A small library that provides object oriented interface to inflect words with yandex service",
     "keywords": ["yandex", "inflector", "php"],
     "type": "library",
